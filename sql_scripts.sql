@@ -145,8 +145,84 @@ from invoice
 group by customer_id
 order by count(invoice_id),avg(total);
 
+
+select count(invoice_id) as daily_invoice_count, extract(YEAR_MONTH from invoice_date), avg(total) as monthly_avg_total, sum(total) as monthly_sum_total
+from invoice
+group by extract(YEAR_MONTH from invoice_date)
+order by extract(YEAR_MONTH from invoice_date);
+
+
 -- Q8. What is the customer churn rate?
 
+select count(distinct customer_id) as customer_count from invoice
+where invoice_date between '2018-01-01' and '2018-12-31' and customer_id not in
+(select distinct customer_id from invoice
+where invoice_date between '2017-01-01' and '2017-12-31');
+-- customers churned in 2018
+
+select count(distinct customer_id) as customer_count from invoice
+where invoice_date between '2019-01-01' and '2019-12-31' and customer_id not in
+(select distinct customer_id from invoice
+where invoice_date between '2018-01-01' and '2018-12-31');
+-- customers churned in 2019
+
+select count(distinct customer_id) as customer_count from invoice
+where invoice_date between '2020-01-01' and '2020-12-31' and customer_id not in
+(select distinct customer_id from invoice
+where invoice_date between '2019-01-01' and '2019-12-31');
+-- customers churned in 2020
+
+select count(distinct customer_id) from invoice
+where invoice_date between '2017-01-01' and '2017-12-31';
+-- customers at the starting of 2018
+
+
+select count(distinct customer_id) from invoice
+where invoice_date between '2018-01-01' and '2018-12-31';
+-- customers at the starting of 2019
+
+
+select count(distinct customer_id) from invoice
+where invoice_date between '2019-01-01' and '2019-12-31';
+-- customers at the starting of 2020
+
+/*
+with Q1_cte1 as(
+select count(distinct customer_id) as churn_count from invoice
+where invoice_date between '2018-01-01' and '2018-03-31' and customer_id not in
+(select distinct customer_id from invoice
+where invoice_date between '2017-10-01' and '2017-12-31')
+),
+Q1_cte2 as(
+select count(distinct customer_id) as churn_count from invoice
+where invoice_date between '2019-01-01' and '2019-03-31' and customer_id not in
+(select distinct customer_id from invoice
+where invoice_date between '2018-10-01' and '2018-12-31')
+),
+Q1_cte3 as(
+select count(distinct customer_id) as churn_count from invoice
+where invoice_date between '2020-01-01' and '2020-03-31' and customer_id not in
+(select distinct customer_id from invoice
+where invoice_date between '2019-10-01' and '2019-12-31')
+),
+Q1_cte4 as(
+select count(distinct customer_id) as customer_count from invoice
+where invoice_date between '2017-01-01' and '2017-03-31'),
+Q1_cte5 as(
+select count(distinct customer_id) as customer_count from invoice
+where invoice_date between '2018-01-01' and '2018-03-31'),
+Q1_cte6 as(
+select count(distinct customer_id) as customer_count from invoice
+where invoice_date between '2019-01-01' and '2019-03-31'),
+Q1_cte7 as(
+select count(distinct customer_id) as customer_count from invoice
+where invoice_date between '2020-01-01' and '2020-03-31')
+select (c1.churn_count+c2.churn_count+c3.churn_count)*100/((c4.customer_count+c5.customer_count+c6.customer_count+c7.customer_count)/4) as Q1_Churn
+from Q1_cte1 as c1,Q1_cte2 as c2,Q1_cte3 as c3,Q1_cte4 as c4, Q1_cte5 as c5,Q1_cte6 as c6, Q1_cte7 as c7;
+
+*/
+
+/*
 with first_three_months as 
 (
 select count(customer_id) as customer_count from invoice
@@ -206,7 +282,7 @@ select ((first3.customer_count)-(last3.customer_count))/(first3.customer_count) 
 from first_three_months as first3,last_three_months as last3;
 
 -- churn rate of -56.6667% in 2020 showing increase in customer count.
-
+*/
 -- Q9. Calculate the percentage of total sales contributed by each genre in the USA and identify the best-selling genres and artists.
 WITH cte as
 (
